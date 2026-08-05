@@ -7,8 +7,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Assemble site
+        run: |
+          mkdir -p dist
+          cp -R public/. dist/
+          cp -R src dist/src
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./public
+          publish_dir: ./dist

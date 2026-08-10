@@ -1,0 +1,10 @@
+{
+  "name": "contech-measure",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Browser-based A4 measurement module for Profito",
+  "scripts": {
+    "check": "node scripts/check-site.mjs",
+    "serve": "python -m http.server 8000"
+  }
+}

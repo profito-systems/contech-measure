@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { spawnSync } from "node:child_process";
 
 const root = process.cwd();
 const requiredScripts = "src/cv/detectA4.js src/cv/warp.js src/ui/konvaLayer.js public/app.js".split(" ");
@@ -11,6 +12,10 @@ for (const scriptPath of requiredScripts) {
   const sourcePath = path.join(root, scriptPath);
   if (!fs.existsSync(sourcePath)) {
     throw new Error(`Missing source file: ${scriptPath}`);
+  }
+  const syntaxCheck = spawnSync(process.execPath, ["--check", sourcePath], { encoding: "utf8" });
+  if (syntaxCheck.status !== 0) {
+    throw new Error(`JavaScript syntax check failed for ${scriptPath}: ${syntaxCheck.stderr}`);
   }
 }
 

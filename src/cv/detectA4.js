@@ -19,6 +19,8 @@ async function detectA4(canvas) {
       cv.findContours(gray, contours, hierarchy, cv.RETR_LIST, cv.CHAIN_APPROX_SIMPLE);
 
       let maxArea = 0;
+      const imageArea = src.rows * src.cols;
+      const a4AspectRatio = 297 / 210;
 
       for (let i = 0; i < contours.size(); i++) {
         const cnt = contours.get(i);
@@ -28,7 +30,13 @@ async function detectA4(canvas) {
 
         if (approx.rows === 4 && cv.isContourConvex(approx)) {
           const area = cv.contourArea(approx);
-          if (area > maxArea) {
+          const corners = cornersFromContour(approx);
+          const aspectRatio = quadrilateralAspectRatio(orderCorners(corners));
+          const areaShare = area / imageArea;
+          const aspectError = Math.abs(aspectRatio - a4AspectRatio) / a4AspectRatio;
+          const isCredibleA4 = areaShare >= 0.05 && areaShare <= 0.95 && aspectError <= 0.18;
+
+          if (isCredibleA4 && area > maxArea) {
             maxArea = area;
             if (best) best.delete();
             best = approx;
@@ -40,10 +48,7 @@ async function detectA4(canvas) {
 
       if (!best) return resolve(null);
 
-      const corners = [];
-      for (let i = 0; i < 4; i++) {
-        corners.push({ x: best.intPtr(i,0)[0], y: best.intPtr(i,0)[1] });
-      }
+      const corners = cornersFromContour(best);
 
       const ordered = orderCorners(corners);
 
@@ -60,6 +65,31 @@ async function detectA4(canvas) {
       if (src) src.delete();
     }
   });
+}
+
+function cornersFromContour(contour) {
+  const corners = Array.of();
+  for (let i = 0; i < 4; i++) {
+    const point = contour.intPtr(i, 0);
+    corners.push({ x: point[0], y: point[1] });
+  }
+  return corners;
+}
+
+function pointDistance(first, second) {
+  return Math.hypot(first.x - second.x, first.y - second.y);
+}
+
+function quadrilateralAspectRatio(corners) {
+  const width = (
+    pointDistance(corners[0], corners[1]) +
+    pointDistance(corners[3], corners[2])
+  ) / 2;
+  const height = (
+    pointDistance(corners[0], corners[3]) +
+    pointDistance(corners[1], corners[2])
+  ) / 2;
+  return Math.max(width, height) / Math.min(width, height);
 }
 
 function orderCorners(pts) {

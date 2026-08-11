@@ -3,14 +3,13 @@ const inputCanvas = document.getElementById('inputCanvas');
 const warpedCanvas = document.getElementById('warpedCanvas');
 const resultEl = document.getElementById('result');
 const autoBtn = document.getElementById('autoDetectBtn');
+const sampleBtn = document.getElementById('sampleBtn');
 
 let currentImage = null;
 let activeObjectUrl = null;
 
-fileInput.addEventListener('change', async (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
-
+function loadImageFile(file) {
+  currentImage = null;
   const img = new Image();
   if (activeObjectUrl) URL.revokeObjectURL(activeObjectUrl);
   const objectUrl = URL.createObjectURL(file);
@@ -38,6 +37,28 @@ fileInput.addEventListener('change', async (e) => {
     currentImage = null;
     resultEl.textContent = 'Nie udało się wczytać wybranego obrazu.';
   };
+}
+
+fileInput.addEventListener('change', (event) => {
+  const file = event.target.files.item(0);
+  if (file) loadImageFile(file);
+});
+
+sampleBtn.addEventListener('click', async () => {
+  sampleBtn.disabled = true;
+  resultEl.textContent = 'Wczytuję bezpieczny wzorzec A4...';
+
+  try {
+    const response = await fetch('sample-a4.jpg');
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const blob = await response.blob();
+    loadImageFile(new File(Array.of(blob), 'wzorzec-miarka-a4.jpg', { type: blob.type }));
+  } catch (error) {
+    console.error(error);
+    resultEl.textContent = 'Nie udało się wczytać wzorca. Spróbuj ponownie.';
+  } finally {
+    sampleBtn.disabled = false;
+  }
 });
 
 autoBtn.addEventListener('click', async () => {
@@ -55,7 +76,7 @@ autoBtn.addEventListener('click', async () => {
 
   const corners = await detectA4(inputCanvas);
   if (!corners) {
-    resultEl.textContent = 'Nie wykryto kartki A4.';
+    resultEl.textContent = 'Nie wykryto wiarygodnie kartki A4. Użyj oryginalnego zdjęcia, zbliż telefon i pokaż cztery narożniki.';
     return;
   }
 

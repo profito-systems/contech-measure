@@ -1,18 +1,23 @@
 async function detectA4(canvas) {
   return new Promise((resolve) => {
+    let src;
+    let gray;
+    let contours;
+    let hierarchy;
+    let best;
+
     try {
-      const src = cv.imread(canvas);
-      const gray = new cv.Mat();
+      src = cv.imread(canvas);
+      gray = new cv.Mat();
 
       cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY);
       cv.GaussianBlur(gray, gray, new cv.Size(5,5), 0);
       cv.Canny(gray, gray, 50, 150);
 
-      const contours = new cv.MatVector();
-      const hierarchy = new cv.Mat();
+      contours = new cv.MatVector();
+      hierarchy = new cv.Mat();
       cv.findContours(gray, contours, hierarchy, cv.RETR_LIST, cv.CHAIN_APPROX_SIMPLE);
 
-      let best = null;
       let maxArea = 0;
 
       for (let i = 0; i < contours.size(); i++) {
@@ -21,7 +26,7 @@ async function detectA4(canvas) {
         const approx = new cv.Mat();
         cv.approxPolyDP(cnt, approx, 0.02 * peri, true);
 
-        if (approx.rows === 4) {
+        if (approx.rows === 4 && cv.isContourConvex(approx)) {
           const area = cv.contourArea(approx);
           if (area > maxArea) {
             maxArea = area;
@@ -33,11 +38,7 @@ async function detectA4(canvas) {
         cnt.delete();
       }
 
-      if (!best) {
-        src.delete(); gray.delete(); contours.delete(); hierarchy.delete();
-        resolve(null);
-        return;
-      }
+      if (!best) return resolve(null);
 
       const corners = [];
       for (let i = 0; i < 4; i++) {
@@ -46,12 +47,17 @@ async function detectA4(canvas) {
 
       const ordered = orderCorners(corners);
 
-      src.delete(); gray.delete(); contours.delete(); hierarchy.delete(); best.delete();
       resolve(ordered);
 
     } catch (err) {
       console.error(err);
       resolve(null);
+    } finally {
+      if (best) best.delete();
+      if (hierarchy) hierarchy.delete();
+      if (contours) contours.delete();
+      if (gray) gray.delete();
+      if (src) src.delete();
     }
   });
 }

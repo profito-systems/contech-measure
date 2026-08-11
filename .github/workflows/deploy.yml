@@ -1,14 +1,37 @@
 name: Deploy to GitHub Pages
+
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
+
+permissions:
+  contents: write
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - name: Check out tested commit
+        run: |
+          git init .
+          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git"
+          git fetch --no-tags --depth 1 origin "${GITHUB_SHA}"
+          git checkout --detach FETCH_HEAD
+      - name: Assemble site
+        run: |
+          mkdir -p dist
+          cp -R public/. dist/
+          cp -R src dist/src
       - name: Deploy
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./public
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd dist
+          git init .
+          git config user.name "github-actions-bot"
+          git config user.email "github-actions@github.com"
+          git add .
+          git commit -m "Deploy ${GITHUB_SHA}"
+          git push --force "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:gh-pages

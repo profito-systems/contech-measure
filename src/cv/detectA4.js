@@ -11,14 +11,14 @@ async function detectA4(canvas) {
       gray = new cv.Mat();
 
       cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY);
-      cv.GaussianBlur(gray, gray, new cv.Size(5,5), 0);
+      cv.GaussianBlur(gray, gray, new cv.Size(5, 5), 0);
       cv.Canny(gray, gray, 50, 150);
 
       contours = new cv.MatVector();
       hierarchy = new cv.Mat();
       cv.findContours(gray, contours, hierarchy, cv.RETR_LIST, cv.CHAIN_APPROX_SIMPLE);
 
-      let maxArea = 0;
+      let bestScore = 0;
       const imageArea = src.rows * src.cols;
       const a4AspectRatio = 297 / 210;
 
@@ -34,10 +34,11 @@ async function detectA4(canvas) {
           const aspectRatio = quadrilateralAspectRatio(orderCorners(corners));
           const areaShare = area / imageArea;
           const aspectError = Math.abs(aspectRatio - a4AspectRatio) / a4AspectRatio;
-          const isCredibleA4 = areaShare >= 0.05 && areaShare <= 0.95 && aspectError <= 0.18;
+          const isCredibleA4 = areaShare >= 0.025 && areaShare <= 0.98 && aspectError <= 0.4;
+          const score = area * Math.max(0.2, 1 - aspectError);
 
-          if (isCredibleA4 && area > maxArea) {
-            maxArea = area;
+          if (isCredibleA4 && score > bestScore) {
+            bestScore = score;
             if (best) best.delete();
             best = approx;
           } else approx.delete();
@@ -47,13 +48,7 @@ async function detectA4(canvas) {
       }
 
       if (!best) return resolve(null);
-
-      const corners = cornersFromContour(best);
-
-      const ordered = orderCorners(corners);
-
-      resolve(ordered);
-
+      resolve(orderCorners(cornersFromContour(best)));
     } catch (err) {
       console.error(err);
       resolve(null);
@@ -66,7 +61,6 @@ async function detectA4(canvas) {
     }
   });
 }
-
 function cornersFromContour(contour) {
   const corners = Array.of();
   for (let i = 0; i < 4; i++) {
@@ -89,15 +83,16 @@ function quadrilateralAspectRatio(corners) {
     pointDistance(corners[0], corners[3]) +
     pointDistance(corners[1], corners[2])
   ) / 2;
-  return Math.max(width, height) / Math.min(width, height);
+  const shorterSide = Math.min(width, height);
+  return shorterSide > 0 ? Math.max(width, height) / shorterSide : Number.POSITIVE_INFINITY;
 }
 
 function orderCorners(pts) {
-  pts.sort((a,b) => a.x + a.y - (b.x + b.y));
+  pts.sort((a, b) => a.x + a.y - (b.x + b.y));
   const tl = pts[0];
   const br = pts[3];
-  const mid = [pts[1], pts[2]];
+  const mid = Array.of(pts[1], pts[2]);
   const tr = mid[0].x > mid[1].x ? mid[0] : mid[1];
   const bl = mid[0].x > mid[1].x ? mid[1] : mid[0];
-  return [tl, tr, br, bl];
+  return Array.of(tl, tr, br, bl);
 }

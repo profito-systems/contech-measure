@@ -3,29 +3,29 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>ConTech Measure Demo</title>
+  <title>Miarka A4 Profito</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <main id="app">
     <header>
-      <h1>ConTech Measure Demo</h1>
-      <p class="muted">Wgraj zdjęcie z kartką A4. System wykryje narożniki i zrobi warp.</p>
+      <h1>Miarka A4 Profito</h1>
+      <p class="muted">Wgraj zdjęcie z kartką A4. System wykryje narożniki i wyprostuje perspektywę.</p>
     </header>
 
     <section class="controls">
       <input id="file" type="file" accept="image/*" />
-      <button id="autoDetectBtn">Auto detect and measure</button>
+      <button id="autoDetectBtn">Wykryj kartkę A4</button>
       <div id="result"></div>
     </section>
 
     <section class="canvases">
       <div class="canvas-wrap">
-        <h3>Original</h3>
+        <h3>Oryginał</h3>
         <canvas id="inputCanvas"></canvas>
       </div>
       <div class="canvas-wrap">
-        <h3>Warped A4</h3>
+        <h3>Wyprostowana kartka A4</h3>
         <canvas id="warpedCanvas" width="840" height="1188"></canvas>
       </div>
     </section>

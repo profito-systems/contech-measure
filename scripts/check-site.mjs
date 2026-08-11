@@ -19,9 +19,9 @@ for (const scriptPath of requiredScripts) {
   }
 }
 
-const referencedAssets = "../src/cv/detectA4.js ../src/cv/warp.js ../src/ui/konvaLayer.js app.js".split(" ");
+const referencedAssets = "src/cv/detectA4.js src/cv/warp.js src/ui/konvaLayer.js app.js".split(" ");
 for (const asset of referencedAssets) {
-  if (!indexHtml.includes(`src=\"${asset}\"`)) {
+  if (!indexHtml.includes(`src="${asset}"`)) {
     throw new Error(`Asset is not referenced by public/index.html: ${asset}`);
   }
 }
@@ -33,10 +33,9 @@ fs.cpSync(path.join(root, "public"), distRoot, { recursive: true });
 fs.cpSync(path.join(root, "src"), path.join(distRoot, "src"), { recursive: true });
 
 for (const asset of referencedAssets) {
-  const relativeAsset = asset.startsWith("../") ? asset.slice(3) : asset;
-  const deployedPath = path.join(distRoot, relativeAsset);
+  const deployedPath = path.join(distRoot, asset);
   if (!fs.existsSync(deployedPath)) {
-    throw new Error(`Asset is missing from assembled site: ${relativeAsset}`);
+    throw new Error(`Asset is missing from assembled site: ${asset}`);
   }
 }
 

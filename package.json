@@ -1,10 +1,10 @@
 {
   "name": "contech-measure",
   "private": true,
-  "version": "0.1.0",
-  "description": "Browser-based A4 measurement module for Profito",
+  "version": "0.2.0",
+  "description": "Browser-based multi-reference photo measurement module for Profito",
   "scripts": {
-    "check": "node scripts/check-site.mjs && node scripts/check-detect-a4-geometry.mjs",
+    "check": "node scripts/check-site.mjs && node scripts/check-reference-geometry.mjs",
     "serve": "python -m http.server 8000"
   }
 }

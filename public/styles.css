@@ -316,6 +316,7 @@ select {
 .file-icon { color: #93c5fd; font-size: 1.35rem; line-height: 1; }
 
 .file-name {
+  grid-column: 1 / -1;
   min-width: 0;
   overflow: hidden;
   color: var(--muted);

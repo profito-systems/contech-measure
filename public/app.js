@@ -1,4 +1,5 @@
 const fileInput = document.getElementById('file');
+const cameraInput = document.getElementById('cameraFile');
 const fileNameEl = document.getElementById('fileName');
 const inputCanvas = document.getElementById('inputCanvas');
 const warpedCanvas = document.getElementById('warpedCanvas');
@@ -183,13 +184,17 @@ function drawLine(ctx, points, color, label) {
   ctx.restore();
 }
 
-function drawInputOverlay() {
+function drawBaseImage() {
   const ctx = inputCanvas.getContext('2d');
   ctx.clearRect(0, 0, inputCanvas.width, inputCanvas.height);
-
   if (currentImage) {
     ctx.drawImage(currentImage, 0, 0, inputCanvas.width, inputCanvas.height);
   }
+}
+
+function drawInputOverlay() {
+  drawBaseImage();
+  const ctx = inputCanvas.getContext('2d');
 
   if (referenceCorners) {
     ctx.save();
@@ -254,6 +259,7 @@ function applyReferenceCorners(corners) {
 
   warpedCanvas.width = activeGeometry.widthPixels;
   warpedCanvas.height = activeGeometry.heightPixels;
+  drawBaseImage();
   warpReference(inputCanvas, referenceCorners, warpedCanvas);
 
   referencePreviewTitle.textContent = 'Wyprostowany wzorzec: ' + spec.label;
@@ -277,10 +283,13 @@ function applyReferenceCorners(corners) {
   drawInputOverlay();
 }
 
-fileInput.addEventListener('change', (event) => {
+function handleImageInput(event) {
   const file = event.target.files.item(0);
   if (file) loadImageFile(file);
-});
+}
+
+fileInput.addEventListener('change', handleImageInput);
+cameraInput.addEventListener('change', handleImageInput);
 
 sampleBtn.addEventListener('click', async () => {
   document.querySelector('input[name="referenceType"][value="a4"]').checked = true;
@@ -323,6 +332,7 @@ autoBtn.addEventListener('click', async () => {
   setStatus('Szukam prostokąta o proporcjach wybranego wzorca…');
 
   try {
+    drawBaseImage();
     const targetRatio = spec.longSideMm / spec.shortSideMm;
     const corners = await detectReference(inputCanvas, targetRatio, {
       minAreaShare: spec.minAreaShare,

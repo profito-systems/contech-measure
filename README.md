@@ -1,32 +1,31 @@
-# Profito - Miarka
+# Contech Measure / Miarka Profito
 
-Moduł pomiarowy będący częścią platformy Profito.
-Upload zdjęcia -> wykrycie kartki A4 -> warp -> skala mm/pixel.
+Canonical development source for the Profito browser measurement tool.
 
-## Uruchomienie podstrony
+## Current measurement model
 
-git add .
-git commit -m "Aktualizacja podstrony miarka"
-git push origin main
+Miarka v2 can calibrate a photograph from:
 
-GitHub Pages opublikuje ten moduł jako podstronę głównego serwisu Profito, lądując w katalogu public/miarka.
+- A4 paper, 210 × 297 mm
+- an ISO/IEC 7810 ID-1 sized card, 85.60 × 53.98 mm
+- any flat rectangular object with two known dimensions
 
-## Praca lokalna
+The card option is intended for non-sensitive objects such as loyalty, gift or access cards in the standard ID-1 format. Users should not photograph payment-card details or identity-document data.
 
-Wymagane są Git, Node.js oraz Python.
+After calibration the UI can measure two line segments on the same physical plane as the reference object and calculate a rectangular area. A manual four-corner mode is available when automatic rectangle detection is unreliable.
 
-Uruchomienie lokalnego serwera:
+## Accuracy boundary
 
-    npm run serve
+This is a practical estimation tool, not a surveying instrument. Perspective correction assumes the reference object and measured points are on the same flat plane. Measurements spanning different planes, curved surfaces or strong depth changes are not reliable.
 
-Następnie otwórz stronę `http://localhost:8000/public/index.html`.
+## Development
 
-Kontrola projektu:
+Run:
 
-    npm run check
+npm run check
 
-Kontrola sprawdza składnię plików JavaScript, obecność assetów wskazanych przez stronę oraz kompletność katalogu wdrożeniowego.
+The checks validate JavaScript syntax, production assembly and reference geometry for A4, ID-1 and custom rectangles.
 
-## Standard pracy z repozytorium
+## Source of truth
 
-Każde zadanie realizujemy na osobnej gałęzi. Przed Pull Requestem uruchamiamy `npm run check` i opisujemy w PR zakres zmian, testy, ryzyko oraz zrzuty ekranu dla zmian interfejsu. Gałąź `main` przyjmuje zmiany wyłącznie przez Pull Request.
+This repository main branch is the canonical Miarka source. The production copy under profito-systems.github.io/miarka should only be updated one-way from a tested canonical revision.

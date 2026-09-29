@@ -4,25 +4,31 @@ import path from "node:path";
 import { spawnSync } from "node:child_process";
 
 const root = process.cwd();
-const requiredScripts = "src/cv/detectA4.js src/cv/warp.js src/ui/konvaLayer.js public/app.js".split(" ");
+const requiredScripts = ["src/cv/detectA4.js", "src/cv/warp.js", "public/app.js"];
 const indexPath = path.join(root, "public", "index.html");
 const indexHtml = fs.readFileSync(indexPath, "utf8");
 
 for (const scriptPath of requiredScripts) {
   const sourcePath = path.join(root, scriptPath);
   if (!fs.existsSync(sourcePath)) {
-    throw new Error(`Missing source file: ${scriptPath}`);
+    throw new Error("Missing source file: " + scriptPath);
   }
   const syntaxCheck = spawnSync(process.execPath, ["--check", sourcePath], { encoding: "utf8" });
   if (syntaxCheck.status !== 0) {
-    throw new Error(`JavaScript syntax check failed for ${scriptPath}: ${syntaxCheck.stderr}`);
+    throw new Error("JavaScript syntax check failed for " + scriptPath + ": " + syntaxCheck.stderr);
   }
 }
 
-const referencedAssets = "src/cv/detectA4.js src/cv/warp.js src/ui/konvaLayer.js app.js".split(" ");
+const referencedAssets = ["src/cv/detectA4.js", "src/cv/warp.js", "app.js"];
 for (const asset of referencedAssets) {
-  if (!indexHtml.includes(`src="${asset}"`)) {
-    throw new Error(`Asset is not referenced by public/index.html: ${asset}`);
+  if (!indexHtml.includes('src="' + asset + '"')) {
+    throw new Error("Asset is not referenced by public/index.html: " + asset);
+  }
+}
+
+for (const requiredUi of ["referenceType", "manualCornersBtn", "measurementPanel", "sendAreaBtn"]) {
+  if (!indexHtml.includes(requiredUi)) {
+    throw new Error("Required Miarka v2 UI marker missing: " + requiredUi);
   }
 }
 
@@ -35,7 +41,7 @@ fs.cpSync(path.join(root, "src"), path.join(distRoot, "src"), { recursive: true 
 for (const asset of referencedAssets) {
   const deployedPath = path.join(distRoot, asset);
   if (!fs.existsSync(deployedPath)) {
-    throw new Error(`Asset is missing from assembled site: ${asset}`);
+    throw new Error("Asset is missing from assembled site: " + asset);
   }
 }
 

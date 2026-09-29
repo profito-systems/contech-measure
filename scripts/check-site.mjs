@@ -26,7 +26,11 @@ for (const asset of referencedAssets) {
   }
 }
 
-for (const requiredUi of ["referenceType", "manualCornersBtn", "measurementPanel", "sendAreaBtn"]) {
+if (indexHtml.includes('docs.opencv.org/4.x/opencv.js')) {
+  throw new Error("OpenCV must be loaded on demand by public/app.js, not during initial page load.");
+}
+
+for (const requiredUi of ["referenceType", "cameraFile", "manualCornersBtn", "measurementPanel", "measureWidthBtn", "measureHeightBtn", "sendAreaBtn"]) {
   if (!indexHtml.includes(requiredUi)) {
     throw new Error("Required Miarka v2 UI marker missing: " + requiredUi);
   }

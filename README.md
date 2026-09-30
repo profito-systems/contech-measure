@@ -6,9 +6,11 @@ Canonical development source for the Profito browser measurement tool.
 
 Miarka v2 can calibrate a photograph from:
 
-- A4 paper, 210 × 297 mm
+- A4 or A5 paper
 - an ISO/IEC 7810 ID-1 sized card, 85.60 × 53.98 mm
-- any flat rectangular object with two known dimensions
+- brick faces with editable nominal dimensions
+- blocks, tiles, phones, books or other rectangles with two known dimensions
+- one known segment for front-facing planes only
 
 The card option is intended for non-sensitive objects such as loyalty, gift or access cards in the standard ID-1 format. Users should not photograph payment-card details or identity-document data.
 
@@ -24,7 +26,7 @@ Run:
 
 npm run check
 
-The checks validate JavaScript syntax, production assembly and reference geometry for A4, ID-1 and custom rectangles.
+The checks validate syntax, assembly, reference geometry and loader regression cases. Run npm run test:browser with Playwright installed for desktop and touch smoke tests. See docs/REFERENCE_RESEARCH.md for sources, results and limits.
 
 ## Source of truth
 

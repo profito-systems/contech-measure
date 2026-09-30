@@ -4,7 +4,8 @@
   "version": "0.2.0",
   "description": "Browser-based multi-reference photo measurement module for Profito",
   "scripts": {
-    "check": "node scripts/check-site.mjs && node scripts/check-reference-geometry.mjs",
-    "serve": "python -m http.server 8000"
+    "check": "node scripts/check-site.mjs && node scripts/check-reference-geometry.mjs && node --test scripts/measurement.test.mjs",
+    "serve": "python -m http.server 8000",
+    "test:browser": "node scripts/browser-smoke.mjs"
   }
 }

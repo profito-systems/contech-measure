@@ -4,7 +4,7 @@ import path from "node:path";
 import { spawnSync } from "node:child_process";
 
 const root = process.cwd();
-const requiredScripts = ["src/cv/detectA4.js", "src/cv/warp.js", "public/app.js"];
+const requiredScripts = Array.of("src/cv/detectA4.js", "src/cv/warp.js", "src/cv/opencv-loader.js", "public/app.js");
 const indexPath = path.join(root, "public", "index.html");
 const indexHtml = fs.readFileSync(indexPath, "utf8");
 
@@ -19,18 +19,18 @@ for (const scriptPath of requiredScripts) {
   }
 }
 
-const referencedAssets = ["src/cv/detectA4.js", "src/cv/warp.js", "app.js"];
+const referencedAssets = Array.of("src/cv/detectA4.js", "src/cv/warp.js", "src/cv/opencv-loader.js", "app.js");
 for (const asset of referencedAssets) {
   if (!indexHtml.includes('src="' + asset + '"')) {
     throw new Error("Asset is not referenced by public/index.html: " + asset);
   }
 }
 
-if (indexHtml.includes('docs.opencv.org/4.x/opencv.js')) {
+if (indexHtml.includes('src="https://docs.opencv.org/')) {
   throw new Error("OpenCV must be loaded on demand by public/app.js, not during initial page load.");
 }
 
-for (const requiredUi of ["referenceType", "cameraFile", "manualCornersBtn", "measurementPanel", "measureWidthBtn", "measureHeightBtn", "sendAreaBtn"]) {
+for (const requiredUi of Array.of("referenceType", "cameraFile", "manualCornersBtn", "measurementPanel", "measureWidthBtn", "measureHeightBtn", "sendAreaBtn", "knownLength", "brickFace", "zoomInBtn", "swapReferenceBtn", "exportPhotoBtn")) {
   if (!indexHtml.includes(requiredUi)) {
     throw new Error("Required Miarka v2 UI marker missing: " + requiredUi);
   }

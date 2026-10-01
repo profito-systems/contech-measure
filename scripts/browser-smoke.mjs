@@ -45,6 +45,7 @@ try {
     await page.locator('#file').setInputFiles({ name: 'reference.jpg', mimeType: 'image/jpeg', buffer: fixture });
     await page.waitForFunction(() => !document.getElementById('manualCornersBtn').disabled);
     assert.equal(await page.evaluate(() => currentImage instanceof HTMLCanvasElement), true, 'loaded photo should be retained only as a bounded working canvas');
+    const imageHeightOverWidth = await page.evaluate(() => inputCanvas.height / inputCanvas.width);
     const clickPoint = async (x, y) => {
       const canvas = page.locator('#inputCanvas');
       const box = await canvas.boundingBox();
@@ -53,16 +54,16 @@ try {
     };
     const calibrate = async () => {
       await page.locator('#manualCornersBtn').click();
-      for (const point of Array.of({ x: 400, y: 300 }, { x: 100, y: 100 }, { x: 400, y: 100 }, { x: 100, y: 300 })) {
+      for (const point of Array.of({ x: 500, y: 180 }, { x: 100, y: 100 }, { x: 500, y: 100 }, { x: 100, y: 180 })) {
         await clickPoint(point.x, point.y);
       }
       assert.equal(await page.locator('#measurementPanel').isVisible(), true);
     };
     const measure = async () => {
       await page.locator('#measureWidthBtn').click();
-      await clickPoint(100, 100); await clickPoint(700, 100);
+      await clickPoint(100, 100); await clickPoint(900, 100);
       await page.locator('#measureHeightBtn').click();
-      await clickPoint(100, 100); await clickPoint(100, 500);
+      await clickPoint(100, 100); await clickPoint(100, 260);
     };
     await calibrate();
     await measure();
@@ -84,11 +85,11 @@ try {
     if (viewport.width === 1280) {
       await page.locator('#inputCanvas').scrollIntoViewIfNeeded();
       const box = await page.locator('#inputCanvas').boundingBox();
-      await page.mouse.move(box.x + 700 * box.width / 1000, box.y + 100 * box.height / 800);
+      await page.mouse.move(box.x + 900 * box.width / 1000, box.y + 100 * box.height / 800);
       await page.mouse.down();
-      await page.mouse.move(box.x + 600 * box.width / 1000, box.y + 100 * box.height / 800, { steps: 5 });
+      await page.mouse.move(box.x + 800 * box.width / 1000, box.y + 100 * box.height / 800, { steps: 5 });
       await page.mouse.up();
-      assertLength(await page.locator('#widthResult').textContent(), 500);
+      assertLength(await page.locator('#widthResult').textContent(), 525);
       await measure();
     }
 
@@ -137,8 +138,8 @@ try {
     assert.equal(await page.locator('#referencePreviewCard').isVisible(), false);
     assert.equal(await page.locator('#autoDetectBtn').isEnabled(), false);
     await measure();
-    assertLength(await page.locator('#widthResult').textContent(), 600);
-    assertLength(await page.locator('#heightResult').textContent(), 400);
+    assertLength(await page.locator('#widthResult').textContent(), 800);
+    assertLength(await page.locator('#heightResult').textContent(), 200 * imageHeightOverWidth);
 
     // Changing dimensions invalidates old results and the planner handoff.
     await page.locator('#knownLength').fill('200');

@@ -68,7 +68,7 @@ function isSupportedImageFile(file) {
 }
 
 function releaseWorkingImage() {
-  if (currentImage instanceof HTMLCanvasElement) {
+  if (currentImage && typeof currentImage.getContext === 'function') {
     currentImage.width = 1;
     currentImage.height = 1;
   }
@@ -237,14 +237,12 @@ function loadImageFile(file) {
     if (!Number.isFinite(pixels) || naturalWidth <= 0 || naturalHeight <= 0) {
       img.onload = null;
       img.onerror = null;
-      img.src = '';
       setStatus('Nie udało się odczytać wymiarów zdjęcia.', 'is-error');
       return;
     }
     if (pixels > MAX_IMAGE_PIXELS) {
       img.onload = null;
       img.onerror = null;
-      img.src = '';
       setStatus('Zdjęcie ma zbyt wysoką rozdzielczość do bezpiecznej pracy na telefonie. Użyj zdjęcia do 60 megapikseli albo zmniejsz je przed wczytaniem.', 'is-error');
       return;
     }
@@ -259,7 +257,6 @@ function loadImageFile(file) {
     workingImage.getContext('2d').drawImage(img, 0, 0, targetWidth, targetHeight);
     img.onload = null;
     img.onerror = null;
-    img.src = '';
 
     inputCanvas.width = targetWidth;
     inputCanvas.height = targetHeight;

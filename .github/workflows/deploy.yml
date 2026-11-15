@@ -1,37 +1,22 @@
-name: Deploy to GitHub Pages
+name: Legacy Contech Pages deploy (disabled)
 
+# Public Miarka is served from MattMurz/mattmurz.github.io/miarka/.
+# Keep this workflow as historical documentation, not a second publishing route.
+# Do not restore the gh-pages force-push without an approved release plan.
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  deploy:
+  legacy-deploy-disabled:
+    if: ${{ false }}
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 1
     steps:
-      - name: Check out tested commit
+      - name: Explain canonical publishing route
         run: |
-          git init .
-          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git"
-          git fetch --no-tags --depth 1 origin "${GITHUB_SHA}"
-          git checkout --detach FETCH_HEAD
-      - name: Assemble site
-        run: |
-          mkdir -p dist
-          cp -R public/. dist/
-          cp -R src dist/src
-      - name: Deploy
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          cd dist
-          git init .
-          git config user.name "github-actions-bot"
-          git config user.email "github-actions@github.com"
-          git add .
-          git commit -m "Deploy ${GITHUB_SHA}"
-          git push --force "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:gh-pages
+          echo "Legacy Contech gh-pages deployment is intentionally disabled."
+          echo "Canonical live Miarka: https://mattmurz.github.io/miarka/"
+          echo "Use a reviewed release to the canonical website instead."
